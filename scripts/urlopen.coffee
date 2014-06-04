@@ -17,9 +17,22 @@ getTitle = (robot, msg, url, redirectRemains) ->
       if result?
         msg.send "【タイトル】" + result[1]
 
+getOGP = (robot, msg, url) ->
+  robot.http(url)
+  .get() (err, res, body) ->
+    return if err
+
+    result = body.match(/<meta property=\"og:description\" content=\"([\s\S]*?)\"/i)
+    if result?
+      msg.send "og:description " + result[1]
+    result = body.match(/<meta property=\"og:image\" content=\"(.+)\"/i)
+    if result?
+      msg.send "og:image " + result[1]
+
 module.exports = (robot) ->
   robot.hear /(https?:\/\/\S*)/i, (msg) ->
     url = msg.match[1]
 
     getTitle(robot, msg, url, 5)
+    getOGP(robot, msg, url)
 
